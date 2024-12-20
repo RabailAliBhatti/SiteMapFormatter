@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>XML Beautifier and URL Counter</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 20px;
+        }
+
+        .container {
+            display: flex;
+            gap: 20px;
+            width: 100%;
+            max-width: 1200px;
+        }
+
+        textarea {
+            width: 45%;
+            height: 300px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 16px;
+            font-family: monospace;
+        }
+
+        .output {
+            width: 45%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background: #f9f9f9;
+            font-size: 16px;
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        button {
+            margin: 20px 0;
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        .url-box {
+            padding: 10px;
+            border: 1px solid #007BFF;
+            border-radius: 5px;
+            background-color: #e9f5ff;
+        }
+
+        .url-box a {
+            color: #007BFF;
+            text-decoration: none;
+        }
+
+        .url-box a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <h1>XML Beautifier and URL Counter</h1>
+    <div class="container">
+        <textarea id="xmlInput" placeholder="Paste your XML here..."></textarea>
+        <div id="xmlOutput" class="output">
+            <h2>Total URLs: <span id="urlCount">0</span></h2>
+            <div id="urlContainer">Formatted URLs will appear here...</div>
+        </div>
+    </div>
+    <button onclick="processXML()">Process XML</button>
+
+    <script>
+        function processXML() {
+            const xmlInput = document.getElementById('xmlInput').value;
+            const urlOutput = document.getElementById('urlContainer');
+            const urlCount = document.getElementById('urlCount');
+
+            try {
+                // Clear previous output
+                urlOutput.innerHTML = '';
+                urlCount.textContent = '0';
+
+                // Preprocess to handle any potentially unsafe content
+                const sanitizedInput = xmlInput.replace(/<script[\s\S]*?>[\s\S]*?<\/script>/gi, '');
+
+                // Parse the XML input
+                const parser = new DOMParser();
+                const xmlDoc = parser.parseFromString(sanitizedInput, 'application/xml');
+
+                // Check for parsing errors
+                if (xmlDoc.getElementsByTagName('parsererror').length) {
+                    urlOutput.textContent = 'Invalid XML format! Please check your input.';
+                    urlOutput.style.color = 'red';
+                    return;
+                }
+
+                // Extract URLs from <loc> tags
+                const urls = xmlDoc.getElementsByTagName('loc');
+                urlCount.textContent = urls.length;
+
+                for (let i = 0; i < urls.length; i++) {
+                    const urlBox = document.createElement('div');
+                    urlBox.className = 'url-box';
+
+                    const urlLink = document.createElement('a');
+                    urlLink.href = urls[i].textContent;
+                    urlLink.target = '_blank';
+                    urlLink.textContent = urls[i].textContent;
+
+                    urlBox.appendChild(urlLink);
+                    urlOutput.appendChild(urlBox);
+                }
+
+                urlOutput.style.color = 'black';
+            } catch (error) {
+                urlOutput.textContent = 'An error occurred while processing the XML: ' + error.message;
+                urlOutput.style.color = 'red';
+            }
+        }
+    </script>
+</body>
+</html>
