@@ -111,8 +111,8 @@
                     return;
                 }
 
-                // Extract URLs from <url> tags (updated from <loc> tag)
-                const urls = xmlDoc.getElementsByTagName('url');
+                // Extract URLs from <loc> tags
+                const urls = xmlDoc.getElementsByTagName('loc');
                 urlCount.textContent = urls.length;
 
                 for (let i = 0; i < urls.length; i++) {
